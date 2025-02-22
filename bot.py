@@ -30,17 +30,20 @@ async def process_image(update: Update, context: CallbackContext):
     await file.download_to_drive("sudoku.jpg")
 
     # Extract Sudoku grid
-    grid = extract_sudoku("sudoku.jpg")
+    print("Extracting Sudoku grid...")
+    grid = process_sudoku("sudoku.jpg")
 
-    if grid:
+    if grid is not None:
+        print("Solving Sudoku...")
         solved_grid = solver(grid)  # Use your existing solver
         solution_text = "\n".join([" ".join(map(str, row)) for row in solved_grid])
         await update.message.reply_text(f"Here is the solved Sudoku:\n{solution_text}")
     else:
         await update.message.reply_text("Could not recognize the Sudoku. Please try again!")
+    print("Done!")
 
 def extract_sudoku(image_path):
-    """Extract Sudoku grid using OpenCV + Tesseract OCR"""
+    """Extract Sudoku grid using OpenCV + EasyOCR"""
     img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     img = cv2.GaussianBlur(img, (5, 5), 0)
     _, img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY_INV)
